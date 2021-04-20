@@ -103,7 +103,7 @@ export function getEntityDescription(
   service: VdmServiceMetadata
 ): string {
   let description = entityDescription(
-    entity.entitySetName,
+    entity.entityTypeName,
     getServiceName(service)
   );
 

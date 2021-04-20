@@ -1,3 +1,4 @@
+import { last } from '@sap-cloud-sdk/util';
 import {
   createEntityClassNames,
   joinEntityMetadata,
@@ -73,27 +74,17 @@ export function generateEntitiesV4(
 
 function navigationProperties(
   entityType: EdmxEntityType,
-  entitySet: EdmxEntitySet,
+  entitySet: EdmxEntitySet | undefined,
   classNames: { [originalName: string]: string },
   formatter: ServiceNameFormatter
 ): VdmNavigationProperty[] {
-  return entitySet.NavigationPropertyBinding.filter(
-    navBinding => !isDerivedNavBindingPath(navBinding.Path)
-  ).map(navBinding => {
-    const navProp = entityType.NavigationProperty.find(
-      n => n.Name === navBinding.Path
-    );
-
-    if (!navProp) {
-      throw new Error(
-        `Could not find navigation property ${navBinding.Path} in entity type ${entityType.Name}.`
-      );
-    }
-
+  return entityType.NavigationProperty.filter(
+    navBinding => !isDerivedNavBindingPath(navBinding.Name)
+  ).map(navProp => {
     const isCollection = isCollectionType(navProp.Type);
 
     return {
-      ...navigationPropertyBase(navProp.Name, entitySet.Name, formatter),
+      ...navigationPropertyBase(navProp.Name, entityType.Name, formatter),
       from: entityType.Name,
       to: navBinding.Target,
       toEntityClassName: classNames[navBinding.Target],

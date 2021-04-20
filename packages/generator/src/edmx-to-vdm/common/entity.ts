@@ -50,10 +50,10 @@ export function transformEntityBase(
   formatter: ServiceNameFormatter
 ): Omit<VdmEntity, 'navigationProperties'> {
   const entity = {
-    entitySetName: entityMetadata.entitySet.Name,
+    entitySetName: entityMetadata.entitySet?.Name,
     entityTypeName: entityMetadata.entityType.Name,
     entityTypeNamespace: entityMetadata.entityType.Namespace,
-    className: classNames[entityMetadata.entitySet.Name],
+    className: entityMetadata.entitySet ? classNames[entityMetadata.entitySet.Name]: (entityMetadata.entityType.Type ? last(entityMetadata.entityType.replace(/[()]/gi, '').Type.split('.')): entityMetadata.entityType.Name),
     properties: properties(entityMetadata, complexTypes, formatter, enumTypes),
     creatable: entityMetadata.entitySet
       ? isCreatable(entityMetadata.entitySet)
@@ -91,7 +91,7 @@ function properties(
       ? entity.swaggerDefinition.properties[p.Name]
       : undefined;
     const instancePropertyName = formatter.originalToInstancePropertyName(
-      entity.entitySet.Name,
+      entity.entityType.Name,
       p.Name
     );
     const isCollection = isCollectionType(p.Type);
@@ -110,7 +110,7 @@ function properties(
       originalName: p.Name,
       instancePropertyName,
       staticPropertyName: formatter.originalToStaticPropertyName(
-        entity.entitySet.Name,
+        entity.entityType.Name,
         p.Name
       ),
       propertyNameAsParam: applyPrefixOnJsConfictParam(instancePropertyName),
@@ -135,7 +135,7 @@ export function joinEntityMetadata<
   entityTypes: EntityTypeT[],
   swagger?: SwaggerMetadata
 ): JoinedEntityMetadata<EntitySetT, EntityTypeT>[] {
-  return entitySets.map(entitySet => {
+  const entitySetMappings = entitySets.map(entitySet => {
     let entityType = entityTypes.find(
       t => `${t.Namespace}.${t.Name}` === entitySet.EntityType
     );
@@ -168,6 +168,14 @@ export function joinEntityMetadata<
 
     return joined;
   });
+  const entityTypeMappings = entityTypes.filter(t=>entitySetMappings.findIndex(e=>e.entityType.Name === t.Name) < 0).map(entityType=>{
+    const joined: JoinedEntityMetadata<EntitySetT, EntityTypeT> = {
+      entitySet:undefined,
+      entityType
+    };
+    return joined;
+  });
+  return [...entitySetMappings, ...entityTypeMappings];
 }
 
 export function navigationPropertyBase(
@@ -204,7 +212,7 @@ export function createEntityClassNames(
   return entityMetadata.reduce(
     (names, e) => ({
       ...names,
-      [e.entitySet.Name]: formatter.originalToEntityClassName(e.entitySet.Name)
+      [e.entityType.Name]: formatter.originalToEntityClassName(e.entityType.Name)
     }),
     {}
   );

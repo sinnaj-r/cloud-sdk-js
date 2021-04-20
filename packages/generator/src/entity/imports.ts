@@ -49,7 +49,8 @@ export function otherEntityImports(
 ): ImportDeclarationStructure[] {
   return Array.from(new Set(entity.navigationProperties.map(n => n.to)))
     .map(to => {
-      const matchedEntity = service.entities.find(e => e.entitySetName === to);
+      // TODO Error here
+      const matchedEntity = service.entities.find(e => e.entityTypeName === to);
       if (!matchedEntity) {
         throw Error(
           `Failed to find the entity from the service: ${JSON.stringify(
