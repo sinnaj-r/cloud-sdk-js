@@ -86,8 +86,10 @@ function navigationProperties(
     return {
       ...navigationPropertyBase(navProp.Name, entityType.Name, formatter),
       from: entityType.Name,
-      to: navBinding.Target,
-      toEntityClassName: classNames[navBinding.Target],
+      to: last(navProp.Type.replace(/[()]/gi, '').split('.')) as string,
+      toEntityClassName: last(
+        navProp.Type.replace(/[()]/gi, '').split('.')
+      ) as string,
       multiplicity: isCollection ? '1 - *' : '1 - 1',
       isMultiLink: isCollection,
       isCollection
