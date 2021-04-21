@@ -203,7 +203,9 @@ export async function generateSourcesForService(
     );
   }
 
-  otherFile(serviceDir, 'tsconfig.json', tsConfig(), options.forceOverwrite);
+  if (options.generateTSConfig) {
+    otherFile(serviceDir, 'tsconfig.json', tsConfig(), options.forceOverwrite);
+  }
 
   if (hasEntities(service)) {
     logger.info(
@@ -222,19 +224,23 @@ export async function generateSourcesForService(
     sourceFile(
       serviceDir,
       entity.className,
-      entitySourceFile(entity, service),
+      entitySourceFile(entity, service, !options.generateTypeOnly, !options.generateTypeOnly),
       options.forceOverwrite
     );
-    sourceFile(
+    if(options.generateRequestBuilder){
+sourceFile(
       serviceDir,
       `${entity.className}RequestBuilder`,
       requestBuilderSourceFile(entity, service.oDataVersion),
       options.forceOverwrite
     );
+    }
   });
 
   service.enumTypes.forEach(enumType => {
-    logger.info(`[${service.originalFileName}] Generating enum type ...`);
+    logger.info(
+      `[${service.originalFileName}@${enumType.typeName}] Generating enum type ...`
+    );
     sourceFile(
       serviceDir,
       enumType.typeName,
@@ -244,11 +250,13 @@ export async function generateSourcesForService(
   });
 
   service.complexTypes.forEach(complexType => {
-    logger.info(`[${service.originalFileName}] Generating complex type ...`);
+    logger.info(
+      `[${service.originalFileName}@${complexType.typeName}] Generating complex type ...`
+    );
     sourceFile(
       serviceDir,
       complexType.typeName,
-      complexTypeSourceFile(complexType, service.oDataVersion),
+      complexTypeSourceFile(complexType, service.oDataVersion, !options.generateTypeOnly, !options.generateTypeOnly, !options.generateTypeOnly),
       options.forceOverwrite
     );
   });

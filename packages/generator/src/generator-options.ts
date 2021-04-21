@@ -18,6 +18,9 @@ export interface GeneratorOptions {
   aggregatorDirectoryName?: string;
   generateNpmrc: boolean;
   generateTypedocJson: boolean;
+  generateTSConfig: boolean;
+  generateRequestBuilder: boolean;
+  generateTypeOnly: boolean;
   generatePackageJson: boolean;
   versionInPackageJson?: string;
   generateJs: boolean;
@@ -117,6 +120,24 @@ export const generatorOptionsCli: KeysToOptions = {
   generateNpmrc: {
     describe:
       'Deprecated. If set to true the generator will generate an .npmrc file specifying a registry for @sap scoped dependencies. This is not necessary anymore and will be skipped by default.',
+    type: 'boolean',
+    default: false
+  },
+  generateTSConfig: {
+    describe:
+      '',
+    type: 'boolean',
+    default: true
+  },
+  generateRequestBuilder: {
+    describe:
+      '',
+    type: 'boolean',
+    default: true
+  },
+  generateTypeOnly: {
+    describe:
+      '',
     type: 'boolean',
     default: false
   },
