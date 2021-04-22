@@ -147,7 +147,7 @@ function complexTypeImportDeclaration(
   return {
     kind: StructureKind.ImportDeclaration,
     moduleSpecifier: `./${prop.jsType}`,
-    namedImports: [prop.jsType, ...(prop.isCollection ? [] : [prop.fieldType])]
+    namedImports: [prop.jsType] // ...(prop.isCollection ? [] : [prop.fieldType])]
   };
 }
 

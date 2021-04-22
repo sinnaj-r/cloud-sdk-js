@@ -2,10 +2,6 @@ import { ImportDeclarationStructure, StructureKind } from 'ts-morph';
 import { caps, ODataVersion } from '@sap-cloud-sdk/util';
 import {
   complexTypeImportDeclarations,
-  coreImportDeclaration,
-  coreNavPropertyFieldTypeImportNames,
-  corePropertyFieldTypeImportNames,
-  corePropertyTypeImportNames,
   enumTypeImportDeclarations,
   externalImportDeclarations
 } from '../imports';
@@ -17,29 +13,29 @@ export function importDeclarations(
 ): ImportDeclarationStructure[] {
   const versionInCap = caps(oDataVersion);
   return [
-    {
-      kind: StructureKind.ImportDeclaration,
-      moduleSpecifier: `./${entity.className}RequestBuilder`,
-      namedImports: [`${entity.className}RequestBuilder`]
-    },
+    // {
+    //   kind: StructureKind.ImportDeclaration,
+    //   moduleSpecifier: `./${entity.className}RequestBuilder`,
+    //   namedImports: [`${entity.className}RequestBuilder`]
+    // },
     ...externalImportDeclarations(entity.properties),
     ...complexTypeImportDeclarations(entity.properties),
-    ...enumTypeImportDeclarations(entity.properties),
-    coreImportDeclaration(
-      [
-        ...corePropertyTypeImportNames(entity.properties),
-        ...corePropertyFieldTypeImportNames(entity.properties),
-        ...coreNavPropertyFieldTypeImportNames(
-          entity.navigationProperties,
-          oDataVersion
-        ),
-        'AllFields',
-        `CustomField${versionInCap}`,
-        `Entity${versionInCap}`,
-        'EntityBuilderType',
-        'Field'
-      ].sort()
-    )
+    ...enumTypeImportDeclarations(entity.properties)
+    // coreImportDeclaration(
+    //   [
+    //     ...corePropertyTypeImportNames(entity.properties),
+    //     ...corePropertyFieldTypeImportNames(entity.properties),
+    //     ...coreNavPropertyFieldTypeImportNames(
+    //       entity.navigationProperties,
+    //       oDataVersion
+    //     ),
+    //     'AllFields',
+    //     `CustomField${versionInCap}`,
+    //     `Entity${versionInCap}`,
+    //     'EntityBuilderType',
+    //     'Field'
+    //   ].sort()
+    // )
   ];
 }
 
@@ -67,7 +63,7 @@ export function otherEntityImports(
 function otherEntityImport(name: string): ImportDeclarationStructure {
   return {
     kind: StructureKind.ImportDeclaration,
-    namedImports: [name, `${name}Type`],
+    namedImports: [`${name}Type`], // ,name],
     moduleSpecifier: `./${name}`
   };
 }
