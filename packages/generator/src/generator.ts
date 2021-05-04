@@ -207,7 +207,7 @@ export async function generateSourcesForService(
     otherFile(serviceDir, 'tsconfig.json', tsConfig(), options.forceOverwrite);
   }
 
-  if (hasEntities(service)) {
+  if (hasEntities(service) && options.generateRequestBuilder) {
     logger.info(
       `[${service.originalFileName}] Generating batch request builder ...`
     );
@@ -224,16 +224,21 @@ export async function generateSourcesForService(
     sourceFile(
       serviceDir,
       entity.className,
-      entitySourceFile(entity, service, !options.generateTypeOnly, !options.generateTypeOnly),
+      entitySourceFile(
+        entity,
+        service,
+        !options.generateTypeOnly,
+        !options.generateTypeOnly
+      ),
       options.forceOverwrite
     );
-    if(options.generateRequestBuilder){
-sourceFile(
-      serviceDir,
-      `${entity.className}RequestBuilder`,
-      requestBuilderSourceFile(entity, service.oDataVersion),
-      options.forceOverwrite
-    );
+    if (options.generateRequestBuilder) {
+      sourceFile(
+        serviceDir,
+        `${entity.className}RequestBuilder`,
+        requestBuilderSourceFile(entity, service.oDataVersion),
+        options.forceOverwrite
+      );
     }
   });
 
@@ -256,7 +261,13 @@ sourceFile(
     sourceFile(
       serviceDir,
       complexType.typeName,
-      complexTypeSourceFile(complexType, service.oDataVersion, !options.generateTypeOnly, !options.generateTypeOnly, !options.generateTypeOnly),
+      complexTypeSourceFile(
+        complexType,
+        service.oDataVersion,
+        !options.generateTypeOnly,
+        !options.generateTypeOnly,
+        !options.generateTypeOnly
+      ),
       options.forceOverwrite
     );
   });
@@ -283,7 +294,12 @@ sourceFile(
     );
   }
 
-  sourceFile(serviceDir, 'index', indexFile(service), options.forceOverwrite);
+  sourceFile(
+    serviceDir,
+    'index',
+    indexFile(service, options.generateRequestBuilder),
+    options.forceOverwrite
+  );
 
   if (options.writeReadme) {
     logger.info(`[${service.originalFileName}] Generating readme ...`);
