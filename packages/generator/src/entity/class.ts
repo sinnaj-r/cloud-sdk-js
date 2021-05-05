@@ -101,7 +101,7 @@ function navProperty(
   navProp: VdmNavigationProperty,
   service: VdmServiceMetadata
 ): PropertyDeclarationStructure {
-  const entity = service.entities.find(e => e.entitySetName === navProp.to);
+  const entity = service.entities.find(e => e.entityTypeName === navProp.to);
   if (!entity) {
     throw Error(
       `Failed to find the entity from the service: ${JSON.stringify(
