@@ -52,7 +52,9 @@ import {
   functionImportSourceFile
 } from './action-function-import';
 import { enumTypeSourceFile } from './enum-type/file';
-import { sdkMetadata, getServiceDescription } from './sdk-metadata';
+import { sdkMetadata } from './sdk-metadata/sdk-metadata';
+import { getServiceDescription } from './sdk-metadata/pregenerated-lib';
+import { navPropsJSON } from './nav-prop-reference/nav-props-json';
 
 const logger = createLogger({
   package: 'generator',
@@ -383,6 +385,13 @@ export async function generateSourcesForService(
       options.forceOverwrite
     );
   }
+
+  otherFile(
+    serviceDir,
+    'nav-props.json',
+    navPropsJSON(service.entities),
+    options.forceOverwrite
+  );
 }
 
 function projectOptions(): ProjectOptions {
