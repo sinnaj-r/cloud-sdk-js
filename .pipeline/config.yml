@@ -1,0 +1,10 @@
+general:
+  productiveBranch: 'main',
+  buildTool: 'npm'
+
+  whitesourceProductName: 'DIST - cloud-sdk-js-os'
+  whitesourceUserTokenCredentialsId: 'Whitesource_User_Token'
+
+steps:
+  whitesourceExecuteScan:
+    orgAdminUserTokenCredentialsId: 'whitesource-orgToken'
