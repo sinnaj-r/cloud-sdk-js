@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-@Library(['piper-lib']) _
+@Library(['piper-lib-os']) _
 
 pipeline {
   agent none
