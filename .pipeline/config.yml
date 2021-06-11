@@ -1,6 +1,6 @@
 general:
   productiveBranch: 'whitesource'
-  buildTool: 'npm'
+  buildTool: 'yarn'
 
   whitesourceProductName: 'DIST - cloud-sdk-js-os'
   whitesourceUserTokenCredentialsId: 'Whitesource_User_Token'
