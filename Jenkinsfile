@@ -14,7 +14,7 @@ pipeline {
         script {
           try {
             checkout scm
-            setupPipelineEnvironment script: this
+            setupCommonPipelineEnvironment script: this
             whitesourceExecuteScan script: this
           } finally {
             deleteDir()
