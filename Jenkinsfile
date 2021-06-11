@@ -2,9 +2,9 @@
 @Library(['piper-lib-os']) _
 
 node() {
-  stage('prepare') {
+  stage('Whitesource Scan') {
     checkout scm
-    setupCommonPipelineEnvironment script:this
+    setupCommonPipelineEnvironment script: this
     whitesourceExecuteScan script: this
   }
 }
