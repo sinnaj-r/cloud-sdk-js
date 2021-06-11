@@ -1,5 +1,5 @@
 general:
-  productiveBranch: 'main'
+  productiveBranch: 'whitesource'
   buildTool: 'npm'
 
   whitesourceProductName: 'DIST - cloud-sdk-js-os'
