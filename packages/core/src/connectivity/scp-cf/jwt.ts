@@ -38,8 +38,8 @@ export function decodeJwtComplete(token: string): CompleteDecodedJWT {
     );
   }
   return {
-    header: decodedToken.header,
-    payload: decodedToken.payload,
+    header: decodedToken.header as any,
+    payload: decodedToken.payload as any,
     signature: decodedToken.signature
   };
 }
