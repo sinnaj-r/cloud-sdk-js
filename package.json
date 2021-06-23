@@ -28,7 +28,7 @@
     "test-packages/type-tests"
   ],
   "scripts": {
-    "postinstall": "yarn compile && yarn run readme",
+    "postinstall": "yarn install --ignore-scripts && yarn compile && yarn run readme",
     "test": "yarn workspaces run test",
     "test:unit": "yarn lerna run test --ignore \"@sap-cloud-sdk/integration-tests\" --ignore \"@sap-cloud-sdk/type-tests\" --ignore \"@sap-cloud-sdk/e2e-tests\" --ignore \"@sap-cloud-sdk/nightly-tests\"",
     "test:integration": "yarn integration-tests test",
@@ -92,7 +92,6 @@
     "typedoc": "^0.21.0",
     "typescript": "~4.1.2"
   },
-  "dependencies": {},
   "resolutions": {
     "agent-base": "^6.0.2",
     "@types/node": "^12.0.0",
