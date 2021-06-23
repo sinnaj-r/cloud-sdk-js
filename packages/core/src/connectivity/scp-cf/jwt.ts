@@ -225,7 +225,7 @@ export function verifyJwtWithKey(
       if (err) {
         reject(new ErrorWithCause('JWT invalid', err));
       } else {
-        resolve(decodedToken as DecodedJWT);
+        resolve(decodedToken as unknown as DecodedJWT);
       }
     });
   });
