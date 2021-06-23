@@ -199,6 +199,7 @@ export function mockRequest(
   mockHeaderRequest({ request, path });
 
   return nock(host, getRequestHeaders(method, additionalHeaders))
+    .persist()
     [method](
       path ? `${request.serviceUrl()}/${path}` : request.resourceUrl(),
       body
