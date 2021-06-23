@@ -1,5 +1,5 @@
 import { format } from 'winston';
-import { Format, TransformableInfo } from 'logform';
+import { TransformableInfo } from 'logform';
 import { getMessageOrStack } from './local';
 
 const { combine, timestamp, json } = format;
@@ -11,7 +11,7 @@ const errors = format.errors || require('logform/errors');
 /**
  * Format for logging in Kibana.
  */
-export const kibana: Format = combine(
+export const kibana = combine(
   errors({ stack: true }),
   timestamp(),
   format(kibanaTransformer)(),

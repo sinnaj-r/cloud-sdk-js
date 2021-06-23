@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { format } from 'winston';
-import { Format, TransformableInfo } from 'logform';
+import { TransformableInfo } from 'logform';
 
 const { combine, timestamp, cli, printf } = format;
 
@@ -10,7 +10,7 @@ const errors = format.errors || require('logform/errors');
 /**
  * Format for local logging.
  */
-export const local: Format = combine(
+export const local = combine(
   errors({ stack: true }),
   timestamp(),
   format(localTransformer)(),
