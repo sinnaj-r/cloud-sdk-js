@@ -2,41 +2,57 @@ import { ImportDeclarationStructure, StructureKind } from 'ts-morph';
 import { caps, ODataVersion } from '@sap-cloud-sdk/util';
 import {
   complexTypeImportDeclarations,
+  coreImportDeclaration,
+  coreNavPropertyFieldTypeImportNames,
+  corePropertyFieldTypeImportNames,
+  corePropertyTypeImportNames,
   enumTypeImportDeclarations,
   externalImportDeclarations
 } from '../imports';
 import { VdmEntity, VdmServiceMetadata } from '../vdm-types';
+import { cmdArgs } from '../generator-options';
 
 export function importDeclarations(
   entity: VdmEntity,
   oDataVersion: ODataVersion
 ): ImportDeclarationStructure[] {
   const versionInCap = caps(oDataVersion);
-  return [
-    // {
-    //   kind: StructureKind.ImportDeclaration,
-    //   moduleSpecifier: `./${entity.className}RequestBuilder`,
-    //   namedImports: [`${entity.className}RequestBuilder`]
-    // },
+  let imports = [
     ...externalImportDeclarations(entity.properties),
     ...complexTypeImportDeclarations(entity.properties),
     ...enumTypeImportDeclarations(entity.properties)
-    // coreImportDeclaration(
-    //   [
-    //     ...corePropertyTypeImportNames(entity.properties),
-    //     ...corePropertyFieldTypeImportNames(entity.properties),
-    //     ...coreNavPropertyFieldTypeImportNames(
-    //       entity.navigationProperties,
-    //       oDataVersion
-    //     ),
-    //     'AllFields',
-    //     `CustomField${versionInCap}`,
-    //     `Entity${versionInCap}`,
-    //     'EntityBuilderType',
-    //     'Field'
-    //   ].sort()
-    // )
   ];
+  if (cmdArgs.generateRequestBuilder) {
+    imports = [
+      {
+        kind: StructureKind.ImportDeclaration,
+        moduleSpecifier: `./${entity.className}RequestBuilder`,
+        namedImports: [`${entity.className}RequestBuilder`]
+      },
+      ...imports
+    ];
+  }
+  if (!cmdArgs.generateTypeOnly) {
+    imports = [
+      ...imports,
+      coreImportDeclaration(
+        [
+          ...corePropertyTypeImportNames(entity.properties),
+          ...corePropertyFieldTypeImportNames(entity.properties),
+          ...coreNavPropertyFieldTypeImportNames(
+            entity.navigationProperties,
+            oDataVersion
+          ),
+          'AllFields',
+          `CustomField${versionInCap}`,
+          `Entity${versionInCap}`,
+          'EntityBuilderType',
+          'Field'
+        ].sort()
+      )
+    ];
+  }
+  return imports;
 }
 
 export function otherEntityImports(
