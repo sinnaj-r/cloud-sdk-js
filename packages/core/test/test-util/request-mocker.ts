@@ -65,8 +65,9 @@ interface MockRequestParams {
   body?: Record<string, any>;
   responseBody?: Record<string, any>;
   responseHeaders?: Record<string, any>;
-  query?: Record<string, any>;
+  query?: Record<string, any> | true;
   method?: string;
+  delay?: number;
 }
 
 export function mockCreateRequest(
@@ -143,7 +144,10 @@ export function mockGetRequest(
     ...params,
     statusCode: params.statusCode || 200,
     method: params.method || 'get',
-    query: { $format: 'json', ...params.query }
+    query:
+      typeof params.query == 'object'
+        ? { $format: 'json', ...params.query }
+        : undefined
   });
 }
 
@@ -189,9 +193,10 @@ export function mockRequest(
     additionalHeaders,
     method = 'get',
     body,
-    query = {},
+    query = true,
     responseBody,
-    responseHeaders
+    responseHeaders,
+    delay = 0
   }: MockRequestParams
 ) {
   const request = new ODataRequest(requestConfig, destination);
@@ -199,12 +204,12 @@ export function mockRequest(
   mockHeaderRequest({ request, path });
 
   return nock(host, getRequestHeaders(method, additionalHeaders))
-    .persist()
     [method](
       path ? `${request.serviceUrl()}/${path}` : request.resourceUrl(),
       body
     )
     .query(query)
+    .delay(delay)
     .reply(statusCode, responseBody, responseHeaders);
 }
 
