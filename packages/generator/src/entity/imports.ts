@@ -43,6 +43,7 @@ export function importDeclarations(
             entity.navigationProperties,
             oDataVersion
           ),
+          ...(cmdArgs.generateRequestBuilder ? [] : ['RequestBuilder']),
           'AllFields',
           `CustomField${versionInCap}`,
           `Entity${versionInCap}`,
@@ -79,7 +80,10 @@ export function otherEntityImports(
 function otherEntityImport(name: string): ImportDeclarationStructure {
   return {
     kind: StructureKind.ImportDeclaration,
-    namedImports: [`${name}Type`], // ,name],
+    // TODO-JRO namedImports: [`${name}Type`], // ,name],
+    namedImports: cmdArgs.generateTypeOnly
+      ? [`${name}Type`]
+      : [name, `${name}Type`],
     moduleSpecifier: `./${name}`
   };
 }

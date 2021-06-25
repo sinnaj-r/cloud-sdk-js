@@ -19,6 +19,7 @@ import {
   VdmProperty,
   VdmServiceMetadata
 } from '../vdm-types';
+import { cmdArgs } from '../generator-options';
 export function entityClass(
   entity: VdmEntity,
   service: VdmServiceMetadata
@@ -158,6 +159,15 @@ function builder(
 }
 
 function requestBuilder(entity: VdmEntity): MethodDeclarationStructure {
+  if (!cmdArgs.generateRequestBuilder) {
+    return {
+      kind: StructureKind.Method,
+      name: 'requestBuilder',
+      isStatic: true,
+      statements: '    throw new Error("RequestBuilder was not generated!");',
+      returnType: `RequestBuilder<${entity.className}>`
+    };
+  }
   return {
     kind: StructureKind.Method,
     name: 'requestBuilder',
