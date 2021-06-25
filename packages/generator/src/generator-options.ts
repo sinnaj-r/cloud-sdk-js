@@ -27,6 +27,7 @@ export interface GeneratorOptions {
   versionInPackageJson?: string;
   generateJs: boolean;
   generateSdkMetadata?: boolean;
+  generateNormalizrConfig?: boolean;
   processesJsGeneration?: number;
   sdkAfterVersionScript: boolean;
   s4hanaCloud: boolean;
@@ -187,6 +188,12 @@ export const generatorOptionsCli: KeysToOptions = {
     default: false,
     hidden: true
   },
+  generateNormalizrConfig: {
+    describe: 'When set to true, a Normalizr Config is generated.',
+    type: 'boolean',
+    default: false,
+    hidden: false
+  },
   s4hanaCloud: {
     describe:
       'When set to true, the description of the generated packages will be specific to S/4HANA Cloud.',
@@ -211,7 +218,7 @@ export function parseCmdArgs(): GeneratorOptions {
     command.option(key, generatorOptionsCli[key]);
   }
 
-  return (command
+  return command
     .config(
       'config',
       'Instead of specifying the options on the command line, you can also provide a path to single .json file holding these options. ' +
@@ -235,7 +242,7 @@ export function parseCmdArgs(): GeneratorOptions {
     .alias('version', 'v')
     .alias('help', 'h')
     .strict(true)
-    .recommendCommands().argv as unknown) as GeneratorOptions;
+    .recommendCommands().argv as unknown as GeneratorOptions;
 }
 
 export const cmdArgs = parseCmdArgs();

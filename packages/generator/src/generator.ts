@@ -55,6 +55,7 @@ import { enumTypeSourceFile } from './enum-type/file';
 import { sdkMetadata } from './sdk-metadata/sdk-metadata';
 import { getServiceDescription } from './sdk-metadata/pregenerated-lib';
 import { navPropsJSON } from './nav-prop-reference/nav-props-json';
+import { normalizrConfig } from './nav-prop-reference/normalizr-config';
 
 const logger = createLogger({
   package: 'generator',
@@ -351,6 +352,15 @@ export async function generateSourcesForService(
         `CSN creation for service ${service.originalFileName} failed. Original error: ${e.message}`
       );
     }
+  }
+
+  if (options.generateNormalizrConfig) {
+    sourceFile(
+      serviceDir,
+      'normalizrEntities',
+      normalizrConfig(service, options.generateRequestBuilder),
+      options.forceOverwrite
+    );
   }
 
   if (options.generateSdkMetadata) {
