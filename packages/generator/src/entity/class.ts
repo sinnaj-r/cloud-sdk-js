@@ -52,7 +52,10 @@ function entityName(entity: VdmEntity): PropertyDeclarationStructure {
     kind: StructureKind.Property,
     name: prependPrefix('entityName'),
     isStatic: true,
-    initializer: `'${entity.entitySetName}'`,
+    isReadonly: true,
+    initializer: `'${
+      entity.entitySetName || entity.entityTypeName || entity.className
+    }'`,
     docs: [addLeadingNewline(`Technical entity name for ${entity.className}.`)]
   };
 }
@@ -65,9 +68,12 @@ function defaultServicePath(
     kind: StructureKind.Property,
     name: prependPrefix('defaultServicePath'),
     isStatic: true,
+    isReadonly: true,
     initializer: `'${
       !service.servicePath || service.servicePath === VALUE_IS_UNDEFINED
-        ? entity.entityTypeNamespace.replace('.api', '')
+        ? entity.entityTypeNamespace
+          ? entity.entityTypeNamespace.replace('.api', '')
+          : VALUE_IS_UNDEFINED
         : service.servicePath
     }'`,
     docs: [addLeadingNewline('Default url path for the according service.')]
