@@ -80,6 +80,7 @@ export function otherEntityImports(
 function otherEntityImport(name: string): ImportDeclarationStructure {
   return {
     kind: StructureKind.ImportDeclaration,
+    isTypeOnly: true,
     // TODO-JRO namedImports: [`${name}Type`], // ,name],
     namedImports: cmdArgs.generateTypeOnly
       ? [`${name}Type`]

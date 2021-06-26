@@ -111,7 +111,7 @@ function navigationProperty(
         },${toEntity}>`,
         initializer: `new ${linkClass(navProp, service.oDataVersion)}('${
           navProp.originalName
-        }', ${entity.className}, ${toEntity})`
+        }', ${entity.className}, require('./${toEntity}').${toEntity})`
       }
     ],
     docs: [getStaticNavPropertyDescription(navProp)],
