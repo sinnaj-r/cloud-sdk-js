@@ -31,8 +31,9 @@ function property(prop: VdmProperty): PropertySignatureStructure {
     kind: StructureKind.PropertySignature,
     name: prop.instancePropertyName + (prop.nullable ? '?' : ''),
     type: prop.isCollection
-      ? `${prop.jsType}[]` + (prop.nullable ? ' | null' : '')
-      : prop.jsType + (prop.nullable ? ' | null' : '')
+      ? // We don't need to add the `| null`, because we already added it to the name
+        `${prop.jsType}[]` // +  (prop.nullable ? ' | null' : '')
+      : prop.jsType // + (prop.nullable ? ' | null' : '')
   };
 }
 
@@ -60,7 +61,9 @@ function navProperty(
 
   return {
     kind: StructureKind.PropertySignature,
-    name: navProp.instancePropertyName + (navProp.isCollection ? '' : '?'),
-    type: entity.className + 'Type' + (navProp.isCollection ? '[]' : ' | null')
+    name: navProp.instancePropertyName + '?',
+    // We don't need to add the `| null`, because we already added it to the name
+    type:
+      entity.className + 'Type' + (navProp.isCollection ? '[]' : '') + ' | null'
   };
 }
