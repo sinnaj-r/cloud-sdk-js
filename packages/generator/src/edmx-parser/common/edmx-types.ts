@@ -64,7 +64,7 @@ export interface JoinedEntityMetadata<
   EntitySetT extends EdmxEntitySetBase,
   EntityTypeT extends EdmxEntityTypeBase<any>
 > {
-  entitySet: EntitySetT;
+  entitySet?: EntitySetT;
   entityType: EntityTypeT;
   swaggerDefinition?: SwaggerEntity;
 }

@@ -12,7 +12,6 @@ export type ODataVersionOf<T extends Entity> = T['_oDataVersion'];
  * @hidden
  */
 export interface Constructable<EntityT extends Entity, EntityTypeT = unknown> {
-  _serviceName: string;
   _entityName: string;
   _defaultServicePath: string;
   _allFields: (Selectable<EntityT> | Field<EntityT> | Link<EntityT>)[]; // Selectable only here for backwards TODO: Remove in v2.0
@@ -35,7 +34,6 @@ export type EntityBuilderType<EntityT extends Entity, EntityTypeT> = {
  * Super class for all representations of OData entity types.
  */
 export abstract class Entity {
-  static _serviceName: string;
   static _entityName: string;
   static _defaultServicePath: string;
 

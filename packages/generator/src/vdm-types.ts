@@ -26,7 +26,7 @@ export type VdmServiceMetadata = VdmServicePackageMetaData & VdmServiceEntities;
 
 // Entity
 export interface VdmEntity {
-  entitySetName: string;
+  entitySetName?: string;
   entityTypeName: string;
   className: string;
   creatable: boolean;
