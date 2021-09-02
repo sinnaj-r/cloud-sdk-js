@@ -1,6 +1,7 @@
 import { PathLike } from 'fs';
-import { resolve } from 'path';
-import { Options } from 'yargs';
+import { resolve, dirname } from 'path';
+import { readFileSync } from 'fs-extra';
+import yargs, { Options } from 'yargs';
 
 /**
  * @hidden
@@ -18,10 +19,15 @@ export interface GeneratorOptions {
   aggregatorDirectoryName?: string;
   generateNpmrc: boolean;
   generateTypedocJson: boolean;
+  generateTSConfig: boolean;
+  generateRequestBuilder: boolean;
+  useNativeTypesOnly: boolean;
+  generateTypeOnly: boolean;
   generatePackageJson: boolean;
   versionInPackageJson?: string;
   generateJs: boolean;
   generateSdkMetadata?: boolean;
+  generateNormalizrConfig?: boolean;
   processesJsGeneration?: number;
   sdkAfterVersionScript: boolean;
   s4hanaCloud: boolean;
@@ -120,6 +126,26 @@ export const generatorOptionsCli: KeysToOptions = {
     type: 'boolean',
     default: false
   },
+  generateTSConfig: {
+    describe: '',
+    type: 'boolean',
+    default: true
+  },
+  generateRequestBuilder: {
+    describe: '',
+    type: 'boolean',
+    default: true
+  },
+  generateTypeOnly: {
+    describe: '',
+    type: 'boolean',
+    default: false
+  },
+  useNativeTypesOnly: {
+    describe: '',
+    type: 'boolean',
+    default: false
+  },
   generateTypedocJson: {
     describe:
       'By default, the generator will generate a typedoc.json file for each package, used for the corresponding "doc" npm script. When set to false, the generator will skip the generation of the typedoc.json.',
@@ -162,6 +188,12 @@ export const generatorOptionsCli: KeysToOptions = {
     default: false,
     hidden: true
   },
+  generateNormalizrConfig: {
+    describe: 'When set to true, a Normalizr Config is generated.',
+    type: 'boolean',
+    default: false,
+    hidden: false
+  },
   s4hanaCloud: {
     describe:
       'When set to true, the description of the generated packages will be specific to S/4HANA Cloud.',
@@ -176,3 +208,41 @@ export const generatorOptionsCli: KeysToOptions = {
     default: false
   }
 };
+
+export function parseCmdArgs(): GeneratorOptions {
+  const command = yargs.command(
+    '$0',
+    'OData Client Code Generator for OData v2 and v4. Generates TypeScript code from .edmx/.xml files for usage with the SAP Cloud SDK for JavaScript.'
+  );
+  for (const key in generatorOptionsCli) {
+    command.option(key, generatorOptionsCli[key]);
+  }
+
+  return command
+    .config(
+      'config',
+      'Instead of specifying the options on the command line, you can also provide a path to single .json file holding these options. ' +
+        'The file must be a valid .json file where the keys correspond to the command line flags without dashes. Paths will be interpreted relative to the config file.',
+      configPath => {
+        const file = readFileSync(configPath, 'utf-8');
+        const pathLikeKeys = ['inputDir', 'outputDir', 'serviceMapping'];
+        return pathLikeKeys.reduce(
+          (json, pathLikeKey) =>
+            typeof json[pathLikeKey] === 'undefined'
+              ? json
+              : {
+                  ...json,
+                  [pathLikeKey]: resolve(dirname(configPath), json[pathLikeKey])
+                },
+          JSON.parse(file)
+        );
+      }
+    )
+    .alias('config', 'c')
+    .alias('version', 'v')
+    .alias('help', 'h')
+    .strict(true)
+    .recommendCommands().argv as unknown as GeneratorOptions;
+}
+
+export const cmdArgs = parseCmdArgs();
