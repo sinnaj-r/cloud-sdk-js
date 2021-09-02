@@ -6,21 +6,28 @@ import {
 import { VdmServiceMetadata } from '../vdm-types';
 import { hasEntities } from '../generator-utils';
 
-export function indexFile(service: VdmServiceMetadata): SourceFileStructure {
+export function indexFile(
+  service: VdmServiceMetadata,
+  generateRequestBuilder = true
+): SourceFileStructure {
   return {
     kind: StructureKind.SourceFile,
     statements: [
       ...service.entities.map(entity => exportStatement(entity.className)),
-      ...service.entities.map(entity =>
-        exportStatement(`${entity.className}RequestBuilder`)
-      ),
+      ...(generateRequestBuilder
+        ? service.entities.map(entity =>
+            exportStatement(`${entity.className}RequestBuilder`)
+          )
+        : []),
       ...service.complexTypes.map(complexType =>
         exportStatement(complexType.typeName)
       ),
       ...(service.functionImports && service.functionImports.length
         ? [exportStatement('function-imports')]
         : []),
-      ...(hasEntities(service) ? [exportStatement('BatchRequest')] : [])
+      ...(hasEntities(service) && generateRequestBuilder
+        ? [exportStatement('BatchRequest')]
+        : [])
     ]
   };
 }

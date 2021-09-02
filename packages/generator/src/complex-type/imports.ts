@@ -9,6 +9,7 @@ import {
   externalImportDeclarations
 } from '../imports';
 import { VdmComplexType } from '../vdm-types';
+import { cmdArgs } from '../generator-options';
 
 export function importDeclarations(
   complexType: VdmComplexType,
@@ -19,17 +20,21 @@ export function importDeclarations(
     ...externalImportDeclarations(complexType.properties),
     ...complexTypeImportDeclarations(complexType.properties),
     ...enumTypeImportDeclarations(complexType.properties),
-    coreImportDeclaration(
-      [
-        ...corePropertyTypeImportNames(complexType.properties),
-        ...corePropertyFieldTypeImportNames(complexType.properties),
-        'ComplexTypeField',
-        'ConstructorOrField',
-        `deserializeComplexType${versionInCaps}`,
-        `Entity${versionInCaps}`,
-        'FieldType',
-        'PropertyMetadata'
-      ].sort()
-    )
+    ...(cmdArgs.generateTypeOnly
+      ? []
+      : [
+          coreImportDeclaration(
+            [
+              ...corePropertyTypeImportNames(complexType.properties),
+              ...corePropertyFieldTypeImportNames(complexType.properties),
+              'ComplexTypeField',
+              'ConstructorOrField',
+              `deserializeComplexType${versionInCaps}`,
+              `Entity${versionInCaps}`,
+              'FieldType',
+              'PropertyMetadata'
+            ].sort()
+          )
+        ])
   ];
 }

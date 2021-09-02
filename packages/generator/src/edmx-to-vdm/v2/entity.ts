@@ -97,7 +97,7 @@ function navigationProperties(
     }
 
     return {
-      ...navigationPropertyBase(navProp.Name, entity.entitySet.Name, formatter),
+      ...navigationPropertyBase(navProp.Name, entity.entityType.Name, formatter),
       from: entity.entityType.Name,
       to: to.EntitySet,
       toEntityClassName: classNames[to.EntitySet],

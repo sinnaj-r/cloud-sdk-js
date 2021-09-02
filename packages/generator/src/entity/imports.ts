@@ -10,37 +10,50 @@ import {
   externalImportDeclarations
 } from '../imports';
 import { VdmEntity, VdmServiceMetadata } from '../vdm-types';
+import { cmdArgs } from '../generator-options';
 
 export function importDeclarations(
   entity: VdmEntity,
   oDataVersion: ODataVersion
 ): ImportDeclarationStructure[] {
   const versionInCap = caps(oDataVersion);
-  return [
-    {
-      kind: StructureKind.ImportDeclaration,
-      moduleSpecifier: `./${entity.className}RequestBuilder`,
-      namedImports: [`${entity.className}RequestBuilder`]
-    },
+  let imports = [
     ...externalImportDeclarations(entity.properties),
     ...complexTypeImportDeclarations(entity.properties),
-    ...enumTypeImportDeclarations(entity.properties),
-    coreImportDeclaration(
-      [
-        ...corePropertyTypeImportNames(entity.properties),
-        ...corePropertyFieldTypeImportNames(entity.properties),
-        ...coreNavPropertyFieldTypeImportNames(
-          entity.navigationProperties,
-          oDataVersion
-        ),
-        'AllFields',
-        `CustomField${versionInCap}`,
-        `Entity${versionInCap}`,
-        'EntityBuilderType',
-        'Field'
-      ].sort()
-    )
+    ...enumTypeImportDeclarations(entity.properties)
   ];
+  if (cmdArgs.generateRequestBuilder) {
+    imports = [
+      {
+        kind: StructureKind.ImportDeclaration,
+        moduleSpecifier: `./${entity.className}RequestBuilder`,
+        namedImports: [`${entity.className}RequestBuilder`]
+      },
+      ...imports
+    ];
+  }
+  if (!cmdArgs.generateTypeOnly) {
+    imports = [
+      ...imports,
+      coreImportDeclaration(
+        [
+          ...corePropertyTypeImportNames(entity.properties),
+          ...corePropertyFieldTypeImportNames(entity.properties),
+          ...coreNavPropertyFieldTypeImportNames(
+            entity.navigationProperties,
+            oDataVersion
+          ),
+          ...(cmdArgs.generateRequestBuilder ? [] : ['RequestBuilder']),
+          'AllFields',
+          `CustomField${versionInCap}`,
+          `Entity${versionInCap}`,
+          'EntityBuilderType',
+          'Field'
+        ].sort()
+      )
+    ];
+  }
+  return imports;
 }
 
 export function otherEntityImports(
@@ -49,7 +62,7 @@ export function otherEntityImports(
 ): ImportDeclarationStructure[] {
   return Array.from(new Set(entity.navigationProperties.map(n => n.to)))
     .map(to => {
-      const matchedEntity = service.entities.find(e => e.entitySetName === to);
+      const matchedEntity = service.entities.find(e => e.entityTypeName === to);
       if (!matchedEntity) {
         throw Error(
           `Failed to find the entity from the service: ${JSON.stringify(
@@ -66,7 +79,9 @@ export function otherEntityImports(
 function otherEntityImport(name: string): ImportDeclarationStructure {
   return {
     kind: StructureKind.ImportDeclaration,
-    namedImports: [name, `${name}Type`],
+    namedImports: cmdArgs.generateTypeOnly
+      ? [`${name}Type`]
+      : [name, `${name}Type`],
     moduleSpecifier: `./${name}`
   };
 }

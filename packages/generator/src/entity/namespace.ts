@@ -88,7 +88,7 @@ function navigationProperty(
   service: VdmServiceMetadata
 ): VariableStatementStructure {
   const matchedEntity = service.entities.find(
-    e => e.entitySetName === navProp.to
+    e => e.entityTypeName === navProp.to
   );
   if (!matchedEntity) {
     throw Error(

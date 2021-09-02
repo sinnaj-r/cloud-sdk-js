@@ -7,16 +7,23 @@ import { entityNamespace } from './namespace';
 
 export function entitySourceFile(
   entity: VdmEntity,
-  service: VdmServiceMetadata
+  service: VdmServiceMetadata,
+  includeEntityClass = true,
+  includeEntityNamespace = true
 ): SourceFileStructure {
+  const statements: SourceFileStructure['statements'] = [
+    ...importDeclarations(entity, service.oDataVersion),
+    ...otherEntityImports(entity, service),
+    entityTypeInterface(entity, service)
+  ];
+  if (includeEntityClass) {
+    statements.push(entityClass(entity, service));
+  }
+  if (includeEntityNamespace) {
+    statements.push(entityNamespace(entity, service));
+  }
   return {
     kind: StructureKind.SourceFile,
-    statements: [
-      ...importDeclarations(entity, service.oDataVersion),
-      entityClass(entity, service),
-      ...otherEntityImports(entity, service),
-      entityTypeInterface(entity, service),
-      entityNamespace(entity, service)
-    ]
+    statements
   };
 }

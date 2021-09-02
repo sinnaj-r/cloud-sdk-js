@@ -19,6 +19,7 @@ import {
   VdmProperty,
   VdmServiceMetadata
 } from '../vdm-types';
+import { cmdArgs } from '../generator-options';
 export function entityClass(
   entity: VdmEntity,
   service: VdmServiceMetadata
@@ -43,7 +44,7 @@ function staticProperties(
   entity: VdmEntity,
   service: VdmServiceMetadata
 ): PropertyDeclarationStructure[] {
-  return [entityName(entity), defaultServicePath(service)];
+  return [entityName(entity), defaultServicePath(service, entity)];
 }
 
 function entityName(entity: VdmEntity): PropertyDeclarationStructure {
@@ -51,18 +52,23 @@ function entityName(entity: VdmEntity): PropertyDeclarationStructure {
     kind: StructureKind.Property,
     name: prependPrefix('entityName'),
     isStatic: true,
-    initializer: `'${entity.entitySetName}'`,
+    isReadonly: true,
+    initializer: `'${
+      entity.entitySetName || entity.entityTypeName || entity.className
+    }'`,
     docs: [addLeadingNewline(`Technical entity name for ${entity.className}.`)]
   };
 }
 
 function defaultServicePath(
-  service: VdmServiceMetadata
+  service: VdmServiceMetadata,
+  entity: VdmEntity
 ): PropertyDeclarationStructure {
   return {
     kind: StructureKind.Property,
     name: prependPrefix('defaultServicePath'),
     isStatic: true,
+    isReadonly: true,
     initializer: `'${service.servicePath}'`,
     docs: [addLeadingNewline('Default url path for the according service.')]
   };
@@ -101,7 +107,7 @@ function navProperty(
   navProp: VdmNavigationProperty,
   service: VdmServiceMetadata
 ): PropertyDeclarationStructure {
-  const entity = service.entities.find(e => e.entitySetName === navProp.to);
+  const entity = service.entities.find(e => e.entityTypeName === navProp.to);
   if (!entity) {
     throw Error(
       `Failed to find the entity from the service: ${JSON.stringify(
@@ -158,6 +164,15 @@ function builder(
 }
 
 function requestBuilder(entity: VdmEntity): MethodDeclarationStructure {
+  if (!cmdArgs.generateRequestBuilder) {
+    return {
+      kind: StructureKind.Method,
+      name: 'requestBuilder',
+      isStatic: true,
+      statements: '    throw new Error("RequestBuilder was not generated!");',
+      returnType: `RequestBuilder<${entity.className}>`
+    };
+  }
   return {
     kind: StructureKind.Method,
     name: 'requestBuilder',
