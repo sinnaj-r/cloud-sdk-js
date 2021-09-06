@@ -1,9 +1,18 @@
-import { propertyExists, SimpleNameGenerator } from '@sap-cloud-sdk/util';
+import {
+  propertyExists,
+  SimpleNameGenerator,
+  UniqueNameGenerator
+} from '@sap-cloud-sdk/util';
+import { cmdArgs } from './generator-options';
 import { ServiceMapping, VdmMapping } from './service-mapping';
 
 export class GlobalNameFormatter {
-  private directoryNameGenerator = new SimpleNameGenerator('-');
-  private npmPackageNameGenerator = new SimpleNameGenerator('-');
+  private directoryNameGenerator = cmdArgs.useSimpleNameGenerator
+    ? new SimpleNameGenerator('-')
+    : new UniqueNameGenerator('-');
+  private npmPackageNameGenerator = cmdArgs.useSimpleNameGenerator
+    ? new SimpleNameGenerator('-')
+    : new UniqueNameGenerator('-');
   private vdmMapping: VdmMapping;
 
   constructor(vdmMapping: VdmMapping | undefined) {

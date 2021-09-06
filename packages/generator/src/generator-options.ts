@@ -32,6 +32,7 @@ export interface GeneratorOptions {
   sdkAfterVersionScript: boolean;
   s4hanaCloud: boolean;
   generateCSN: boolean;
+  useSimpleNameGenerator: boolean;
 }
 
 export const defaultValueProcessesJsGeneration = 16;
@@ -204,6 +205,11 @@ export const generatorOptionsCli: KeysToOptions = {
   generateCSN: {
     describe:
       'When set to true a CSN file will be generated for each service definition in the output directory.',
+    type: 'boolean',
+    default: false
+  },
+  useSimpleNameGenerator: {
+    describe: 'Use original entity names instead of uniquely generated ones.',
     type: 'boolean',
     default: false
   }

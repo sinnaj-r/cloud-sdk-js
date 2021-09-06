@@ -1,6 +1,7 @@
 import voca from 'voca';
 import {
   SimpleNameGenerator,
+  UniqueNameGenerator,
   upperCaseSnakeCase,
   camelCase
 } from '@sap-cloud-sdk/util';
@@ -10,6 +11,7 @@ import {
   defaultReservedWords,
   reservedServiceKeywords
 } from './reserved-words';
+import { cmdArgs } from './generator-options';
 
 export class ServiceNameFormatter {
   static originalToServiceName(name: string): string {
@@ -26,21 +28,30 @@ export class ServiceNameFormatter {
     return voca.titleCase(packageName.replace(/-/g, ' '));
   }
 
-  private serviceWideNameGenerator = new SimpleNameGenerator('_', [
-    ...defaultReservedWords,
-    ...reservedServiceKeywords
-  ]);
+  private serviceWideNameGenerator = cmdArgs.useSimpleNameGenerator
+    ? new SimpleNameGenerator('_', [
+        ...defaultReservedWords,
+        ...reservedServiceKeywords
+      ])
+    : new UniqueNameGenerator('_', [
+        ...defaultReservedWords,
+        ...reservedServiceKeywords
+      ]);
 
   private parameterNameGenerators: {
-    [functionImportName: string]: SimpleNameGenerator;
+    [functionImportName: string]: SimpleNameGenerator | UniqueNameGenerator;
   } = {};
 
   private staticPropertyNameGenerators: {
-    [entitySetOrComplexTypeName: string]: SimpleNameGenerator;
+    [entitySetOrComplexTypeName: string]:
+      | SimpleNameGenerator
+      | UniqueNameGenerator;
   } = {};
 
   private instancePropertyNameGenerators: {
-    [entitySetOrComplexTypeName: string]: SimpleNameGenerator;
+    [entitySetOrComplexTypeName: string]:
+      | SimpleNameGenerator
+      | UniqueNameGenerator;
   } = {};
 
   constructor();
@@ -64,20 +75,23 @@ export class ServiceNameFormatter {
     // Here we assume that entitysets and complextypes cannot have the same original name
     [...entitySetNames, ...complexTypeNames].forEach(
       entitySetOrComplexTypeName => {
-        this.staticPropertyNameGenerators[
-          entitySetOrComplexTypeName
-        ] = new SimpleNameGenerator('_', defaultReservedWords);
-        this.instancePropertyNameGenerators[
-          entitySetOrComplexTypeName
-        ] = new SimpleNameGenerator('_', defaultReservedWords);
+        this.staticPropertyNameGenerators[entitySetOrComplexTypeName] =
+          cmdArgs.useSimpleNameGenerator
+            ? new SimpleNameGenerator('_', defaultReservedWords)
+            : new UniqueNameGenerator('_', defaultReservedWords);
+        this.instancePropertyNameGenerators[entitySetOrComplexTypeName] =
+          cmdArgs.useSimpleNameGenerator
+            ? new SimpleNameGenerator('_', defaultReservedWords)
+            : new UniqueNameGenerator('_', defaultReservedWords);
       }
     );
 
     if (functionImportNames) {
       functionImportNames.forEach(functionImportName => {
-        this.parameterNameGenerators[
-          functionImportName
-        ] = new SimpleNameGenerator('_', defaultReservedWords);
+        this.parameterNameGenerators[functionImportName] =
+          cmdArgs.useSimpleNameGenerator
+            ? new SimpleNameGenerator('_', defaultReservedWords)
+            : new UniqueNameGenerator('_', defaultReservedWords);
       });
     }
   }
@@ -113,9 +127,8 @@ export class ServiceNameFormatter {
 
   originalToFunctionImportName(str: string): string {
     const transformedName = voca.camelCase(str);
-    const newName = this.serviceWideNameGenerator.generateAndSaveUniqueName(
-      transformedName
-    );
+    const newName =
+      this.serviceWideNameGenerator.generateAndSaveUniqueName(transformedName);
 
     return applyPrefixOnJsConflictFunctionImports(newName);
   }
@@ -195,21 +208,24 @@ export class ServiceNameFormatter {
 
     transformedName = stripAUnderscore(voca.titleCase(transformedName));
 
-    const newNames = this.serviceWideNameGenerator.generateAndSaveUniqueNamesWithSuffixes(
-      transformedName,
-      getInterfaceNamesSuffixes(),
-      false
-    );
+    const newNames =
+      this.serviceWideNameGenerator.generateAndSaveUniqueNamesWithSuffixes(
+        transformedName,
+        getInterfaceNamesSuffixes(),
+        false
+      );
 
     return newNames[0];
   }
 
   private getOrInitGenerator(
-    generators: Record<string, SimpleNameGenerator>,
+    generators: Record<string, SimpleNameGenerator | UniqueNameGenerator>,
     name: string
-  ): SimpleNameGenerator {
+  ): SimpleNameGenerator | UniqueNameGenerator {
     if (!generators[name]) {
-      generators[name] = new SimpleNameGenerator('_', defaultReservedWords);
+      generators[name] = cmdArgs.useSimpleNameGenerator
+        ? new SimpleNameGenerator('_', defaultReservedWords)
+        : new UniqueNameGenerator('_', defaultReservedWords);
     }
     return generators[name];
   }
