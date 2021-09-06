@@ -44,13 +44,8 @@ type EdmTypeMapping = {
 };
 
 function edmDateToMoment(date: string): moment.Moment {
-  const parsed = moment.utc(date, 'YYYY-MM-DD', true);
-  if (!parsed.isValid()) {
-    throw new Error(
-      `Provided date value ${date} does not follow the Edm.Date pattern: YYYY-MM-DD`
-    );
-  }
-  return parsed;
+  // This should be dynamic, depending on generator options
+  return date as any;
 }
 
 function edmDateTimeOffsetToMoment(dateTime: string): moment.Moment {

@@ -1,5 +1,6 @@
 import { EdmTypeShared } from '@sap-cloud-sdk/core';
 import { createLogger, ODataVersion } from '@sap-cloud-sdk/util';
+import { cmdArgs } from './generator-options';
 import {
   VdmNavigationProperty,
   VdmProperty,
@@ -55,27 +56,27 @@ const edmToTsTypeMapping: EdmTypeMappingWithoutEnum = {
   'Edm.String': 'string',
   'Edm.Boolean': 'boolean',
   'Edm.Guid': 'string',
-  'Edm.Decimal': 'BigNumber',
+  'Edm.Decimal': cmdArgs.useNativeTypesOnly ? 'string' : 'BigNumber',
   'Edm.Int16': 'number',
   'Edm.Int32': 'number',
-  'Edm.Int64': 'BigNumber',
+  'Edm.Int64': cmdArgs.useNativeTypesOnly ? 'string' : 'BigNumber',
   'Edm.Single': 'number',
   'Edm.Double': 'number',
   'Edm.Float': 'number', // ABAP CDS compatibility
   'Edm.Byte': 'number',
   'Edm.SByte': 'number',
-  'Edm.DateTimeOffset': 'Moment',
+  'Edm.DateTimeOffset': cmdArgs.useNativeTypesOnly ? 'string' : 'Moment',
   'Edm.Binary': 'string',
   'Edm.Any': 'any',
 
   // OData v2 specific
-  'Edm.DateTime': 'Moment',
-  'Edm.Time': 'Time',
+  'Edm.DateTime': cmdArgs.useNativeTypesOnly ? 'string' : 'Moment',
+  'Edm.Time': cmdArgs.useNativeTypesOnly ? 'string' : 'Time',
 
   // OData v4 specific
-  'Edm.Date': 'Moment',
-  'Edm.Duration': 'Duration',
-  'Edm.TimeOfDay': 'Time'
+  'Edm.Date': cmdArgs.useNativeTypesOnly ? 'string' : 'Moment',
+  'Edm.Duration': cmdArgs.useNativeTypesOnly ? 'string' : 'Duration',
+  'Edm.TimeOfDay': cmdArgs.useNativeTypesOnly ? 'string' : 'Time'
 };
 
 const edmToFieldTypeMapping: EdmTypeMapping = {
