@@ -66,6 +66,7 @@ export function otherEntityImports(
 function otherEntityImport(name: string): ImportDeclarationStructure {
   return {
     kind: StructureKind.ImportDeclaration,
+    isTypeOnly: true,
     namedImports: [name, `${name}Type`],
     moduleSpecifier: `./${name}`
   };
