@@ -1,32 +1,26 @@
-import {
-  Container,
-  Logger,
-  LoggerOptions as WinstonLoggerOptions,
-  transports
-} from 'winston';
-import { kibana, local } from './format';
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-console */
 
-const format = process.env.VCAP_SERVICES ? kibana : local;
-const loggerReference = 'sap-cloud-sdk-logger';
-const exceptionLoggerId = 'sap-cloud-sdk-exception-logger';
-
-const container = new Container();
-const exceptionTransport = new transports.Console();
-const customLogLevels = {};
 const DEFAULT_LOGGER__MESSAGE_CONTEXT = '__DEFAULT_LOGGER__MESSAGE_CONTEXT';
-let silent = false;
 
 const moduleLogger = createLogger({
   package: 'util',
   messageContext: 'cloud-sdk-logger'
 });
 
-function toggleMuteLoggers(silence: boolean) {
-  silent = silence;
-  container.loggers.forEach(logger => toggleSilenceTransports(logger, silence));
-}
+const ConsoleLogger = {
+  warn: console.warn.bind(console),
+  log: console.log.bind(console),
+  error: console.error.bind(console),
+  debug: console.debug.bind(console),
+  info: console.info.bind(console),
+  verbose: console.info.bind(console)
+} as any;
 
-function toggleSilenceTransports(logger: Logger, silence: boolean) {
+function toggleMuteLoggers(_silence: boolean) {}
+
+function toggleSilenceTransports(logger: any, silence: boolean) {
   logger.transports.forEach(transport => (transport.silent = silence));
 }
 
@@ -47,11 +41,7 @@ export function unmuteLoggers(): void {
 /**
  * Default logger for the SAP Cloud SDK for unhandled exceptions.
  */
-export const cloudSdkExceptionLogger = container.get(exceptionLoggerId, {
-  defaultMeta: { logger: loggerReference, test: 'exception' },
-  format,
-  exceptionHandlers: [exceptionTransport]
-});
+export const cloudSdkExceptionLogger = ConsoleLogger;
 
 /**
  * Disable logging of exceptions. Enabled by default.
@@ -63,11 +53,7 @@ export function disableExceptionLogger(): void {
 /**
  * Enable logging of exceptions. Enabled by default.
  */
-export function enableExceptionLogger(): void {
-  // Flush all possible handlers to make sure there is only one in the end.
-  disableExceptionLogger();
-  cloudSdkExceptionLogger.exceptions.handle(exceptionTransport);
-}
+export function enableExceptionLogger(): void {}
 
 /**
  * Create a logger for the given message context, if available.
@@ -91,103 +77,50 @@ export function enableExceptionLogger(): void {
  * To retrieve a logger after its creation use [[getLogger]].
  * If you want to change the log level of a logger use [[setLogLevel]].
  *
- * @param messageContext - Either a key for the message context of all messages produced by the logger or an object with additional keys to set in the message.
+ * @param _messageContext - Either a key for the message context of all messages produced by the logger or an object with additional keys to set in the message.
  * @returns A newly created or an already existing logger for the given context.
  */
 export function createLogger(
-  messageContext?: string | (MessageContextObj & LoggerOptions)
-): Logger {
-  const customFields: { [key: string]: any } =
-    typeof messageContext === 'string'
-      ? { messageContext }
-      : { ...messageContext };
-  const logger = container.get(customFields.messageContext, {
-    level:
-      customLogLevels[customFields.messageContext] ||
-      customFields.level ||
-      container.options.level ||
-      'info',
-    defaultMeta: {
-      ...(Object.entries(customFields).length && {
-        custom_fields: customFields
-      }),
-      logger: customFields.logger || loggerReference
-    },
-    format,
-    transports: [new transports.Console()]
-  });
-
-  toggleSilenceTransports(logger, silent);
-
-  return logger;
+  _messageContext?: string | (MessageContextObj & LoggerOptions)
+): any {
+  return ConsoleLogger;
 }
 
 /**
  * Get logger for a given message context, if avilable.
- * @param messageContext - A key for the message context of all messages produced by the logger
+ * @param _messageContext - A key for the message context of all messages produced by the logger
  * @returns The logger for the given messageContext if it was created before
  */
 export function getLogger(
-  messageContext = DEFAULT_LOGGER__MESSAGE_CONTEXT
-): Logger | undefined {
-  if (container.has(messageContext)) {
-    return container.get(messageContext);
-  }
+  _messageContext = DEFAULT_LOGGER__MESSAGE_CONTEXT
+): any | undefined {
+  return ConsoleLogger;
 }
 
 /**
  * Change the log level of a logger based on its message context.
  * E. g., to set the log level for the destination accessor module of the SDK to _debug_, simply call `setLogLevel('debug', 'destination-acessor')`.
- * @param level - level to set the logger to. Use an empty string '' as level to unset context level.
- * @param messageContextOrLogger - Message context of the logger to change the log level for or the logger itself
+ * @param _level - level to set the logger to. Use an empty string '' as level to unset context level.
+ * @param _messageContextOrLogger - Message context of the logger to change the log level for or the logger itself
  */
 export function setLogLevel(
-  level: LogLevel | '',
-  messageContextOrLogger: string | Logger = DEFAULT_LOGGER__MESSAGE_CONTEXT
-): void {
-  const messageContext =
-    typeof messageContextOrLogger === 'string'
-      ? messageContextOrLogger
-      : getMessageContext(messageContextOrLogger);
-
-  if (messageContext) {
-    customLogLevels[messageContext] = level;
-
-    if (container.has(messageContext)) {
-      const logger = container.get(messageContext);
-      logger.level = level;
-    }
-  } else if (typeof messageContextOrLogger !== 'string') {
-    moduleLogger.warn(
-      'Setting log level for logger with unknown message context'
-    );
-    messageContextOrLogger.level = level;
-  }
-}
+  _level: LogLevel | '',
+  _messageContextOrLogger: string | any = DEFAULT_LOGGER__MESSAGE_CONTEXT
+): void {}
 
 /**
  * Change the global log level of the container which will set default level for all active loggers.
  * E. g., to set the global log level call `setGlobalLogLevel('debug')`.
  * @param level: LogLevel
  */
-export function setGlobalLogLevel(level: LogLevel): void {
-  container.options.level = level;
-}
+export function setGlobalLogLevel(level: LogLevel): void {}
 
 export function getGlobalLogLevel(): string | undefined {
-  return container.options.level;
+  return;
 }
 
-function getMessageContext(logger: Logger): string | undefined {
-  // This is a workaround for the missing defaultMeta property on the winston logger.
-  const loggerOptions = logger as WinstonLoggerOptions;
-  if (
-    loggerOptions &&
-    loggerOptions.defaultMeta &&
-    loggerOptions.defaultMeta.custom_fields
-  ) {
-    return loggerOptions.defaultMeta.custom_fields.messageContext;
-  }
+function getMessageContext(_logger: any): string | undefined {
+  return;
 }
 
 /**
