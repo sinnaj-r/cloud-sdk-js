@@ -4,7 +4,7 @@ import {
   PropertyDeclarationStructure,
   StructureKind
 } from 'ts-morph';
-import { caps, ODataVersion } from '@sap-cloud-sdk/util';
+import { caps, ODataVersion, VALUE_IS_UNDEFINED } from '@sap-cloud-sdk/util';
 import { prependPrefix } from '../internal-prefix';
 import {
   getEntityDescription,
@@ -43,7 +43,7 @@ function staticProperties(
   entity: VdmEntity,
   service: VdmServiceMetadata
 ): PropertyDeclarationStructure[] {
-  return [entityName(entity), defaultServicePath(service)];
+  return [entityName(entity), defaultServicePath(entity, service)];
 }
 
 function entityName(entity: VdmEntity): PropertyDeclarationStructure {
@@ -57,13 +57,20 @@ function entityName(entity: VdmEntity): PropertyDeclarationStructure {
 }
 
 function defaultServicePath(
+  entity: VdmEntity,
   service: VdmServiceMetadata
 ): PropertyDeclarationStructure {
   return {
     kind: StructureKind.Property,
     name: prependPrefix('defaultServicePath'),
     isStatic: true,
-    initializer: `'${service.servicePath}'`,
+    initializer: `'${
+      !service.servicePath || service.servicePath === VALUE_IS_UNDEFINED
+        ? entity.entityTypeNamespace
+          ? entity.entityTypeNamespace.replace('.api', '')
+          : VALUE_IS_UNDEFINED
+        : service.servicePath
+    }'`,
     docs: [addLeadingNewline('Default url path for the according service.')]
   };
 }
